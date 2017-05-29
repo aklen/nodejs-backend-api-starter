@@ -1,0 +1,47 @@
+{
+  "name": "nodejs-api-backend-starter",
+  "version": "0.1.0",
+  "description": "A boilerplate for Node.js - MySQL based backend API",
+  "main": "server.js",
+  "dependencies": {
+    "assert": "^1.4.1",
+    "async": "^2.4.0",
+    "body-parser": "^1.15.2",
+    "cheerio": "*",
+    "express": "^4.14.0",
+    "express-jwt": "^5.3.0",
+    "express-validator": "^2.20.10",
+    "htmlparser2": "*",
+    "jsonwebtoken": "^7.4.1",
+    "morgan": "^1.7.0",
+    "mysql": "^2.13.0",
+    "nbind": "^0.3.9",
+    "node-gyp": "^3.5.0",
+    "request": "*",
+    "sequelize": "^3.30.4",
+    "util": "^0.10.3",
+    "uuid": "*",
+    "winston": "^2.3.1",
+    "winston-daily-rotate-file": "^1.4.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aklen/nodejs-backend-api-starter.git"
+  },
+  "keywords": [
+    "node",
+    "nodejs",
+    "backend",
+    "api",
+    "starter",
+    "kit",
+    "bilerplate"
+  ],
+  "author": "Akos Hamori",
+  "license": "MIT"
+}

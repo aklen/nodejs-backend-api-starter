@@ -1,0 +1,50 @@
+{
+	"usernameValidator": {
+		"'username'": {
+			"notEmpty": true,
+			"isLength": {
+				"options": [
+					{
+						"min": 8,
+						"max": 255
+					}
+				],
+				"errorMessage": "Must be minimum 8 chars long!"
+			},
+			"isEmail": {
+				"errorMessage": "Invalid Email syntax!"
+			}
+		}
+	},
+	"emailValidator": {
+		"'email'": {
+			"notEmpty": true,
+			"isLength": {
+				"options": [
+					{
+						"min": 8,
+						"max": 255
+					}
+				],
+				"errorMessage": "Must be minimum 8 chars long!"
+			},
+			"isEmail": {
+				"errorMessage": "Invalid Email syntax!"
+			}
+		}
+	},
+	"passwordValidator": {
+		"'password'": {
+			"notEmpty": true,
+			"isLength": {
+				"options": [
+					{
+						"min": 3,
+						"max": 255
+					}
+				],
+				"errorMessage": "Must be minimum 3 chars long!"
+			}
+		}
+	}
+}
