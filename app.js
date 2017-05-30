@@ -57,7 +57,7 @@ exports.initRouter = function(app) {
 	router.use(require('./api/core/auth.js'));
 
 	// specific routes
-	// ...
+	router.use(require('./api/users.js'));
 
 	// fallback route - this must be the last one
 	router.use(require('./api/core/fallback.js'));
