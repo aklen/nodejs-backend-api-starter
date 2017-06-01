@@ -204,8 +204,9 @@ exports.responseObj = function() {
 			}
 		},
 
-		setUrl: function(req, res) {
-			this.response.result.url = req.url;
+		setUrl: function(req) {
+			var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+			this.response.result.url = fullUrl;
 		},
 
 		getStatusCode: function() {
