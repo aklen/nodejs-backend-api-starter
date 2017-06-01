@@ -23,13 +23,16 @@ SOFTWARE.*/
 var express = require('express');
 var app = express();
 var utils = require('../../modules/utils');
+var logger = require("../../modules/log_manager");
+var errorMap = require('../../modules/utils/errors.js');
 
 app.use('*', function(req, res, next) {
-	next(utils.errorObj.items.resourceNotFound);
+	next(errorMap.items.resourceNotFound);
 });
 
 app.use(function(err, req, res, next) {
 	if (err) {
+		logger.debug(err);
 		var resObj = new utils.responseObj();
 		if (err.hasOwnProperty('name')) {
 			if (err.name === 'UnauthorizedError') {
@@ -40,6 +43,7 @@ app.use(function(err, req, res, next) {
 		}
 
 		resObj.addErrorItem(err);
+		resObj.setUrl(req);
 		res.status(resObj.getStatusCode());
 		res.send(resObj.toJSonString());
 	}

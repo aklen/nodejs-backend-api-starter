@@ -23,6 +23,7 @@ SOFTWARE.*/
 var utils = this;
 var util = require('util');
 var logger = require('../../modules/log_manager');
+var errorMap = require('./errors.js');
 
 String.prototype.format = function(placeholders) {
 	var s = this;
@@ -136,48 +137,6 @@ exports.convertToJsObj = function(obj) {
 	return JSON.parse(utils.ObjToSource(obj));
 }
 
-exports.errorObj = {
-	setMessage: function(name, msg) {
-		if (utils.errorObj.items.hasOwnProperty(name))
-			utils.errorObj.items[name].msg = msg;
-	},
-	getByName: function(name) {
-		return utils.errorObj.items[name];
-	},
-	items: {
-		validationErrors: {
-			name: 'validationErrors',
-			msg: 'Some HTTP params are not presented or cannot be validated.',
-			code: 1,
-			httpStatusCode: 1
-		},
-		undefinedVariable: {
-			name: 'undefinedVariable',
-			msg: 'Variable is undefined.',
-			code: 2,
-			httpStatusCode: 2
-		},
-		dataNotPresented: {
-			name: 'dataNotPresented',
-			msg: 'Data object is not presented.',
-			code: 3,
-			httpStatusCode: 3
-		},
-		resourceNotFound: {
-			name: 'resourceNotFound',
-			message: 'Resource not found.',
-			code: 4,
-			httpStatusCode: 404
-		},
-		invalidToken: {
-			name: 'invalidToken',
-			message: 'Token is invalid.',
-			code: 5,
-			httpStatusCode: 401
-		}
-	}
-};
-
 exports.responseObj = function() {
 	return {
 		response: {
@@ -220,7 +179,7 @@ exports.responseObj = function() {
 			this.response.result.url = req.url;
 			var errors = req.validationErrors();
 			if (errors) {
-				var errorObj = utils.errorObj.items.validationErrors;
+				var errorObj = errorMap.items.validationErrors;
 				errorObj.items = errors;
 				this.addErrorItem(errorObj);
 				return false;
@@ -233,7 +192,7 @@ exports.responseObj = function() {
 			this.response.result.success = false;
 
 			if (!utils.isDefined(errorObj)) {
-				this.addErrorItem(self.errorObj.items.undefinedVariable);
+				this.addErrorItem(errorMap.items.undefinedVariable);
 				return;
 			}
 
