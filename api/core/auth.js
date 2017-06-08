@@ -22,51 +22,66 @@ SOFTWARE.*/
 
 var express = require('express');
 var app = express();
+var util = require('util');
+var utils = require('../../modules/utils');
+var errorMap = require('../../modules/utils/errors.js');
+var resp = require('../../modules/response_manager');
 var logger = require("../../modules/log_manager");
 var db = require('../../modules/db_manager');
 var auth = require('../../modules/auth');
 var validator = require('../../modules/validator_manager');
 var validatorSchema = validator.validators;
-var utils = require('../../modules/utils');
 
-var secret = 'mysecretsalttext';
+app.get('/authenticate', function(req, res, next) {
+	logger.debug('authenticate()');
+
+	var resObj = new resp(req);
+	res.json(resObj.toJSonString());
+});
+
 app.post('/authenticate', function(req, res, next) {
 	logger.debug('authenticate.post()');
-	var responseObj = new utils.responseObj();
-	responseObj.setUrl(req, res);
 
-	req.check(validatorSchema.usernameValidator);
-	req.check(validatorSchema.passwordValidator);
-	if (!responseObj.validateHttpParams(req, res)) {
-		logger.debug(responseObj.toJSonString());
-		res.json(responseObj.toJSonString());
+	// req.check(validatorSchema.usernameValidator);
+	// req.check(validatorSchema.passwordValidator);
+
+	var resObj = new resp(req);
+
+	if (!resObj.validateHttpParams(req)) {
+		res.json(resObj.toJSonString());
 		return;
 	}
 
 	var username = req.body.username;
 	var password = req.body.password;
-	var queryStr = "CALL loginUser('{uname}', '{pwd}');".format({ uname: username, pwd: password });
+	var queryStr = util.format("CALL loginUser('%s', '%s');", username, password);
 
-	db.handleQuery(req, res, queryStr, false, null, function(err, resObj) {
+	db.handleQuery(req, res, queryStr, false, null, function(err, innerResObj) {
 		if (err) {
 			logger.error(err);
-			res.json(resObj.toJSonString());
+			res.json(innerResObj.toJSonString());
 			return;
 		}
 
-		resObj.setToken(auth.signToken(resObj.response.data.items[0]));
-		res.json(resObj.toJSonString());
-		return;
+		var payload = innerResObj.getDataItems()[0];
+		logger.debug('payload: ' + payload);
+
+		if (payload) {
+			innerResObj.setToken(auth.signToken(payload));
+			res.json(innerResObj.toJSonString());
+			return;
+		}
+		else {
+			throw errorMap.items.noTokenPayload;
+		}
 	});
 });
 
 app.get('/authenticate/test', function(req, res, next) {
 	logger.debug('authenticate.test()');
 
-	var responseObj = new utils.responseObj();
-	responseObj.setUrl(req, res);
-
-	res.json(responseObj.toJSonString());
+	var resObj = new resp(req);
+	res.json(resObj.toJSonString());
 });
 
 module.exports = app;

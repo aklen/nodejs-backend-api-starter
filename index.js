@@ -24,20 +24,76 @@ var http = require("http");
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var logger = require('morgan');
+var morgan = require('morgan');
 var expressValidator = require('express-validator');
-var serverApp = require('./app.js');
+var jwt = require('jsonwebtoken');
+var expressJWT = require('express-jwt');
+var auth = require('./modules/auth');
+var authConfig = require('./modules/auth/config.json');
+var logger = require('./modules/log_manager');
+var resp = require('./modules/response_manager');
+var auth = require('./modules/auth');
+var plugins = require('./modules/plugin_manager');
+var db = require('./modules/db_manager');
 
 var host = "0.0.0.0" || process.env.VCAP_APP_HOST || process.env.HOST || 'localhost';
 var port = process.env.VCAP_APP_PORT || process.env.PORT || 3000;
 
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-	extended: true
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressValidator({
+	customValidators: {
+		isBoolean: function(value) {
+			return typeof bool === 'boolean' || (typeof bool === 'object' && typeof bool.valueOf() === 'boolean');
+		},
+		isArray: function(value) {
+			return Array.isArray(value);
+		},
+		gte: function(param, num) {
+			return param >= num;
+		}
+	}
 }));
-app.use(expressValidator());
+app.use(auth.initHeaders());
+app.use(auth.useExpressJwt());
+
+var router = express.Router();
+router.use(require('./api/core/index.js'));
+router.use(require('./api/core/auth.js'));
+router.use(require('./api/core/errors.js'));
+router.use(require('./api/users.js'));
+app.use('/api', router);
+
+app.use('*', function(req, res, next) {
+	next(errorMap.items.resourceNotFound);
+});
+
+app.use(function(err, req, res, next) {
+	logger.debug('fallback catcherror: ', err);
+	if (err) {
+		var resObj = new resp(req);
+
+		if (err.hasOwnProperty('name')) {
+			if (err.name == errorMap.items.unauthorizedError.name) {
+				if (!err.hasOwnProperty('message')) {
+					err.message = 'The API request has unauthorized token!';
+				}
+			}
+			else if (err.name == errorMap.items.resourceNotFound.name) {
+				err.message = err.message + ' (' + resObj.getUrl() + ')';
+			}
+		}
+
+		resObj.setTitle('API');
+		resObj.setDescription('Something wrong happened. :( Please check errors object for more info...');
+		resObj.addErrorItem(err);
+		res.status(resObj.getStatusCode());
+		res.send(resObj.toJSonString());
+	}
+});
 
 app.listen(port, host, function() {
-	serverApp.init(app, host, port);
+	logger.debug('Listening on ' + host + ':' + port);
+	plugins.init();
 });

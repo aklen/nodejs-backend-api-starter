@@ -23,11 +23,13 @@ SOFTWARE.*/
 var express = require('express');
 var app = express();
 var utils = require('../../modules/utils');
+var resp = require('../../modules/response_manager');
 var logger = require("../../modules/log_manager");
 
 app.get('/', function(req, res, next) {
-	var resObj = new utils.responseObj();
-	resObj.addDataItem({ title: 'API', description: 'This is the index route of tha API.'});
+	var resObj = new resp(req);
+	resObj.setTitle('API');
+	resObj.setDescription('This is the index route.');
 	res.send(resObj.toJSonString());
 });
 

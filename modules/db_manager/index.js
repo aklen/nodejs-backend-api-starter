@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const utils = require('../../modules/utils');
+var resp = require('../../modules/response_manager');
 var logger = require('../../modules/log_manager');
 var config = require('./config.json');
 
@@ -72,7 +73,7 @@ exports.catchError = function(req, res, error) {
 
 exports.handleQuery = function(req, res, queryStr, sendResponse, queryOptions, cb) {
 	logger.debug('db.handleQuery(): queryStr: ' + queryStr);
-	var result = new utils.responseObj();
+	var result = new resp(req);
 
 	sequelize.query(queryStr, queryOptions)
 		.then(function(data) {
@@ -94,7 +95,7 @@ exports.handleQuery = function(req, res, queryStr, sendResponse, queryOptions, c
 
 exports.checkErrors = function(req, res) {
 	logger.debug('db.checkErrors()');
-	var result = new utils.responseObj();
+	var result = new resp(req);
 	var errors = req.validationErrors();
 	if (errors) {
 		result.response.errors.items = errors;
@@ -103,7 +104,3 @@ exports.checkErrors = function(req, res) {
 	}
 	return false;
 };
-
-exports.init = function() {
-
-}
