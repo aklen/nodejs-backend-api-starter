@@ -44,7 +44,3 @@ module.exports.stream = {
 	}
 };
 module.exports.config = config;
-
-module.exports.init = function() {
-
-}

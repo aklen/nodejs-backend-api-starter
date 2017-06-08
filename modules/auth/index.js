@@ -22,6 +22,8 @@ SOFTWARE.*/
 
 var utils = require('../../modules/utils');
 var logger = require('../../modules/log_manager');
+var resp = require('../../modules/response_manager');
+var errorMap = require('../../modules/utils/errors.js');
 var config = require('./config.json');
 var jwt = require('jsonwebtoken');
 var expressJWT = require('express-jwt');
@@ -35,18 +37,80 @@ exports.signToken = function(data, expireTime) {
 	});
 }
 
-exports.getToken = function(req) {
+exports.getTokenFromBody = function(req) {
+	return req.body.token;
+}
+
+exports.getTokenFromQuery = function(req) {
+	return req.query.token;
+}
+
+exports.getTokenFromAccessTokenHeader = function(req) {
+	return req.headers['x-access-token'];
+}
+
+exports.getTokenFromAuthorizationHeader = function(req) {
 	if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
 		return req.headers.authorization.split(' ')[1];
-	} else if (req.query && req.query.token) {
-		return req.query.token;
 	}
 	return null;
 }
 
-exports.getExpressJWT = function(req) {
+exports.verifyToken = function(token) {
+	if (!token) {
+		return null;
+	}
+
+	jwt.verify(token, config.secret, function(err, decoded) {
+		if (err) {
+			return null;
+		}
+
+		return decoded;
+	});
+};
+
+exports.getExpressJWT = function(req, res, next) {
 	return expressJWT({
 		secret: config.secret,
-		getToken: this.getToken(req)
+		getToken: this.verifyToken(req, res, next)
 	});
+}
+
+exports.initHeaders = function() {
+	return function(req, res, next) {
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+		res.header("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Allow-Origin, Authorization");
+		res.header('Access-Control-Allow-Credentials', true);
+		next();
+	}
+}
+
+exports.useExpressJwt = function() {
+	return expressJWT({
+			secret: config.secret,
+			getToken: function(req) {
+				var token = null;
+
+				if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+					token = req.headers.authorization.split(' ')[1];
+				}
+				else if (req.query && req.query.token) {
+					token =  req.query.token;
+				}
+				else if (req.body && req.body.token) {
+					token =  req.body.token;
+				}
+				else if (req.headers) {
+					token = req.headers['x-access-token'];
+				}
+
+				req.token = token;
+				return token;
+			}
+		}).unless({
+			useOriginalUrl: false,
+			path: ['/api/authenticate', '/api/errors', '/api/test']
+		});
 }

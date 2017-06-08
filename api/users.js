@@ -25,6 +25,7 @@ var app = express();
 var async = require('async');
 var util = require('util');
 var utils = require('../modules/utils');
+var resp = require('../modules/response_manager');
 var logger = require("../modules/log_manager");
 var db = require('../modules/db_manager');
 var validatorSchema = require('../modules/validator_manager').validators;
@@ -33,8 +34,9 @@ var validatorSchema = require('../modules/validator_manager').validators;
 app.get('/users', function(req, res) {
 	logger.debug('users.list()');
 
-	var resObj = new utils.responseObj();
-	resObj.addDataItem({ title: 'API', description: 'This route should list users.'});
+	var resObj = new resp(req);
+	resObj.setTitle('API');
+	resObj.setDescription('This route shows a list of users.');
 	res.send(resObj.toJSonString());
 });
 

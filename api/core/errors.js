@@ -23,26 +23,16 @@ SOFTWARE.*/
 var express = require('express');
 var app = express();
 var utils = require('../../modules/utils');
+var resp = require('../../modules/response_manager');
+var logger = require("../../modules/log_manager");
+var errorMap = require('../../modules/utils/errors.js');
 
-app.use('*', function(req, res, next) {
-	next(utils.errorObj.items.resourceNotFound);
-});
-
-app.use(function(err, req, res, next) {
-	if (err) {
-		var resObj = new utils.responseObj();
-		if (err.hasOwnProperty('name')) {
-			if (err.name === 'UnauthorizedError') {
-				if (!err.hasOwnProperty('message')) {
-					err.message = 'The API request has invalid token!';
-				}
-			}
-		}
-
-		resObj.addErrorItem(err);
-		res.status(resObj.getStatusCode());
-		res.send(resObj.toJSonString());
-	}
+app.get('/errors', function(req, res, next) {
+	var resObj = new resp(req);
+	resObj.setTitle('API');
+	resObj.setDescription('This route shows you the error objects used in the response.');
+	resObj.addDataItem(errorMap.items);
+	res.send(resObj.toJSonString());
 });
 
 module.exports = app;
