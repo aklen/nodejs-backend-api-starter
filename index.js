@@ -30,6 +30,7 @@ var jwt = require('jsonwebtoken');
 var expressJWT = require('express-jwt');
 var auth = require('./modules/auth');
 var authConfig = require('./modules/auth/config.json');
+var errorMap = require('./modules/utils/errors.js');
 var logger = require('./modules/log_manager');
 var resp = require('./modules/response_manager');
 var auth = require('./modules/auth');
@@ -56,7 +57,7 @@ app.use(expressValidator({
 	}
 }));
 app.use(auth.initHeaders());
-app.use(auth.useExpressJwt());
+app.use('/api', auth.useExpressJwt());
 
 var router = express.Router();
 router.use(require('./api/core/index.js'));
@@ -70,18 +71,17 @@ app.use('*', function(req, res, next) {
 });
 
 app.use(function(err, req, res, next) {
+	logger.debug('fallback catcherror: err.name: ', err.name);
 	logger.debug('fallback catcherror: ', err);
+
 	if (err) {
 		var resObj = new resp(req);
 
 		if (err.hasOwnProperty('name')) {
-			if (err.name == errorMap.items.unauthorizedError.name) {
+			if (errorMap.items.hasOwnProperty(err.name)) {
 				if (!err.hasOwnProperty('message')) {
-					err.message = 'The API request has unauthorized token!';
+					err.message = errorMap.items[err.name].message;
 				}
-			}
-			else if (err.name == errorMap.items.resourceNotFound.name) {
-				err.message = err.message + ' (' + resObj.getUrl() + ')';
 			}
 		}
 

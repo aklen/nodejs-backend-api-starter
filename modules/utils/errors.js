@@ -78,10 +78,16 @@ exports.items = {
 		code: 8,
 		httpStatusCode: 401
 	},
-	unauthorizedError: {
+	UnauthorizedError: {
 		name: 'UnauthorizedError',
 		message: 'Unauthorized token provided.',
 		code: 9,
 		httpStatusCode: 401
+	},
+	ReferenceError: {
+		name: 'ReferenceError',
+		message: 'ReferenceError.',
+		code: 10,
+		httpStatusCode: 404
 	}
 }
