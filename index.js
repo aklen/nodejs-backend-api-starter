@@ -84,6 +84,9 @@ app.use(function(err, req, res, next) {
 				}
 			}
 		}
+		if (err.name == 'Error' && err.code == 'ENOENT') {
+			err = errorMap.items.resourceNotFound;
+		}
 
 		resObj.setTitle('API');
 		resObj.setDescription('Something wrong happened. :( Please check errors object for more info...');

@@ -1,5 +1,10 @@
 {
-    "sign-method": "",
-    "secret": "",
-    "expire-time": ""
+  "signMethod": "",
+  "secret": "",
+  "expiresIn": "",
+  "unprotectedPath": [
+    "/api/authenticate",
+    "/api/errors",
+    "/api/test"
+  ]
 }

@@ -111,6 +111,6 @@ exports.useExpressJwt = function() {
 			}
 		}).unless({
 			useOriginalUrl: false,
-			path: ['/api/authenticate', '/api/errors', '/api/test']
+			path: config.unprotectedPath
 		});
 }

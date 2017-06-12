@@ -1,16 +1,16 @@
 {
-	"console": {
-		"level": "debug",
-		"handleExceptions": false,
-		"json": false,
-		"colorize": true,
-		"timestamp": true
-	},
-	"file": {
-		"level": "debug",
-		"filename": "logs/.log",
-		"datePattern": "yyyy-MM-dd",
-		"prepend": true
-	},
-	"exitOnError": false
+  "console": {
+    "level": "debug",
+    "handleExceptions": false,
+    "json": false,
+    "colorize": true,
+    "timestamp": true
+  },
+  "file": {
+    "level": "debug",
+    "filename": "logs/.log",
+    "datePattern": "yyyy-MM-dd",
+    "prepend": true
+  },
+  "exitOnError": false
 }
