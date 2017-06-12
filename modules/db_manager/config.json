@@ -1,7 +1,7 @@
 {
-	"host": "localhost",
-	"dialect": "mysql",
-	"dbname": "",
-	"user": "",
-	"password": ""
+  "host": "",
+  "dialect": "mysql",
+  "dbname": "",
+  "user": "",
+  "password": ""
 }
