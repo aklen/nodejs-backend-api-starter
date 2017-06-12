@@ -1,5 +1,5 @@
 {
-    "sign-method": "",
-    "secret": "",
-    "expire-time": ""
+  "signMethod": "",
+  "secret": "",
+  "expiresIn": "",
 }
