@@ -1,6 +1,6 @@
 /*MIT License
 
-Copyright (c) 2017 Akos Hamori
+Copyright (c) 2017-2018 Akos Hamori
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +20,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-var utils = require('../../modules/utils');
+var utils = require('../../modules/utils/utils.js');
 var errorMap = require('../../modules/utils/errors.js');
 
 function Response(req) {
 	this.clear();
 	this.setUrl(req.protocol + '://' + req.get('host') + req.originalUrl);
+	if (req.query) {
+		this._schema.data.numItemsPerPage = Number(req.query.limit || 0);
+		this._schema.data.numItemsFrom = Number(req.query.skip || 0);
+		this._schema.data.numItemsTo = Number(this._schema.data.numItemsFrom) + Number(this._schema.data.numItemsPerPage);
+	}
 }
 
 Response.prototype.getSchema = function() {
@@ -34,7 +39,7 @@ Response.prototype.getSchema = function() {
 			success: true,
 			statuscode: 200,
 			url: '',
-			title: '',
+			title: 'API',
 			description: ''
 		},
 		token: {
@@ -50,6 +55,12 @@ Response.prototype.getSchema = function() {
 			items: []
 		},
 		data: {
+			numItemsPerPage: 0,
+			numItemsFrom: 0,
+			numItemsTo: 0,
+			numItemsLeft: 0,
+			numItemsFullCount: 0,
+
 			count: 0,
 			items: []
 		}
@@ -171,7 +182,7 @@ Response.prototype.setEventItems = function(items) {
 
 Response.prototype.getDataItems = function(item) {
 	return this._schema.data.items;
-}
+};
 
 Response.prototype.addDataItem = function(item) {
 	if (!utils.isDefined(item)) {
@@ -211,7 +222,7 @@ Response.prototype.toJSonString = function() {
 	var resp = this._schema;
 	if (resp.token) {
 		if (!resp.token.key && !resp.token.expires) {
-			delete resp.token;
+			// delete resp.token;
 		}
 	}
 	if (resp.errors) {

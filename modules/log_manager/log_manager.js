@@ -1,6 +1,6 @@
 /*MIT License
 
-Copyright (c) 2017 Akos Hamori
+Copyright (c) 2017-2018 Akos Hamori
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-var logger = require('../../modules/log_manager');
+var winston = require('winston');
+var config = require('./config.json');
 
-exports.init = function() {
-	logger.debug('testPlugin initialized');
-}
+winston.emitErrs = true;
+
+const env = process.env.NODE_ENV || 'development';
+
+// const tsFormat = () => (new Date()).toLocaleTimeString();
+var logger = new winston.Logger({
+	transports: [
+		// colorize the output to the console
+		new winston.transports.Console(config.console),
+		new(require('winston-daily-rotate-file'))(config.file)
+	],
+	exitOnError: config.exitOnError
+});
+
+module.exports = logger;
+module.exports.stream = {
+	write: function(message, encoding) {
+		logger.info(message);
+	}
+};
+module.exports.config = config;

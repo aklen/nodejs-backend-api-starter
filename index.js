@@ -1,6 +1,6 @@
 /*MIT License
 
-Copyright (c) 2017 Akos Hamori
+Copyright (c) 2017-2018 Akos Hamori
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,12 @@ var morgan = require('morgan');
 var expressValidator = require('express-validator');
 var jwt = require('jsonwebtoken');
 var expressJWT = require('express-jwt');
-var auth = require('./modules/auth');
-var authConfig = require('./modules/auth/config.json');
+var auth = require('./modules/auth/auth.js');
 var errorMap = require('./modules/utils/errors.js');
-var logger = require('./modules/log_manager');
-var resp = require('./modules/response_manager');
-var auth = require('./modules/auth');
-var plugins = require('./modules/plugin_manager');
-var db = require('./modules/db_manager');
+var logger = require('./modules/log_manager/log_manager.js');
+var resp = require('./modules/response_manager/response_manager.js');
+var pluginManager = require('./modules/plugin_manager/plugin_manager.js');
+var db = require('./modules/db_manager/db_manager.js');
 
 var host = "0.0.0.0" || process.env.VCAP_APP_HOST || process.env.HOST || 'localhost';
 var port = process.env.VCAP_APP_PORT || process.env.PORT || 3000;
@@ -64,39 +62,13 @@ router.use(require('./api/core/index.js'));
 router.use(require('./api/core/auth.js'));
 router.use(require('./api/core/errors.js'));
 router.use(require('./api/users.js'));
+router.use(require('./api/fallback.js'));
 app.use('/api', router);
 
-app.use('*', function(req, res, next) {
-	next(errorMap.items.resourceNotFound);
-});
-
-app.use(function(err, req, res, next) {
-	logger.debug('fallback catcherror: err.name: ', err.name);
-	logger.debug('fallback catcherror: ', err);
-
-	if (err) {
-		var resObj = new resp(req);
-
-		if (err.hasOwnProperty('name')) {
-			if (errorMap.items.hasOwnProperty(err.name)) {
-				if (!err.hasOwnProperty('message')) {
-					err.message = errorMap.items[err.name].message;
-				}
-			}
-		}
-		if (err.name == 'Error' && err.code == 'ENOENT') {
-			err = errorMap.items.resourceNotFound;
-		}
-
-		resObj.setTitle('API');
-		resObj.setDescription('Something wrong happened. :( Please check errors object for more info...');
-		resObj.addErrorItem(err);
-		res.status(resObj.getStatusCode());
-		res.send(resObj.toJSonString());
-	}
-});
-
 app.listen(port, host, function() {
+	logger.debug('Node.js version: ' + process.version);
 	logger.debug('Listening on ' + host + ':' + port);
-	plugins.init();
+
+	// start plugins
+	pluginManager.loadPlugins(app, express);
 });

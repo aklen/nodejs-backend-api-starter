@@ -24,11 +24,10 @@ var express = require('express');
 var app = express();
 var async = require('async');
 var util = require('util');
-var utils = require('../modules/utils');
-var resp = require('../modules/response_manager');
-var logger = require("../modules/log_manager");
-var db = require('../modules/db_manager');
-var validatorSchema = require('../modules/validator_manager').validators;
+var utils = require('../modules/utils/utils.js');
+var resp = require('../modules/response_manager/response_manager.js');
+var logger = require('../modules/log_manager/log_manager.js');
+var db = require('../modules/db_manager/db_manager.js');
 
 // list
 app.get('/users', function(req, res) {

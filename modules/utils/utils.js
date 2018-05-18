@@ -1,6 +1,6 @@
 /*MIT License
 
-Copyright (c) 2017 Akos Hamori
+Copyright (c) 2017-2018 Akos Hamori
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 var utils = this;
 var util = require('util');
-var logger = require('../../modules/log_manager');
+var logger = require('../../modules/log_manager/log_manager.js');
 var errorMap = require('./errors.js');
 
 String.prototype.format = function(placeholders) {
