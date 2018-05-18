@@ -23,14 +23,12 @@ SOFTWARE.*/
 var express = require('express');
 var app = express();
 var util = require('util');
-var utils = require('../../modules/utils');
+var utils = require('../../modules/utils/utils.js');
 var errorMap = require('../../modules/utils/errors.js');
-var resp = require('../../modules/response_manager');
-var logger = require("../../modules/log_manager");
-var db = require('../../modules/db_manager');
-var auth = require('../../modules/auth');
-var validator = require('../../modules/validator_manager');
-var validatorSchema = validator.validators;
+var resp = require('../../modules/response_manager/response_manager.js');
+var logger = require('../../modules/log_manager/log_manager.js');
+var db = require('../../modules/db_manager/db_manager.js');
+var auth = require('../../modules/auth/auth.js');
 
 app.get('/authenticate', function(req, res, next) {
 	logger.debug('authenticate()');
@@ -41,9 +39,6 @@ app.get('/authenticate', function(req, res, next) {
 
 app.post('/authenticate', function(req, res, next) {
 	logger.debug('authenticate.post()');
-
-	// req.check(validatorSchema.usernameValidator);
-	// req.check(validatorSchema.passwordValidator);
 
 	var resObj = new resp(req);
 

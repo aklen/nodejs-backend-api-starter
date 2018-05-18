@@ -1,6 +1,6 @@
 /*MIT License
 
-Copyright (c) 2017 Akos Hamori
+Copyright (c) 2017 MTA SZTAKI
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,36 @@ SOFTWARE.*/
 
 var express = require('express');
 var app = express();
-var utils = require('../../modules/utils/utils.js');
-var resp = require('../../modules/response_manager/response_manager.js');
-var logger = require('../../modules/log_manager/log_manager.js');
+var utils = require('../modules/utils/utils.js');
+var logger = require('../modules/log_manager/log_manager.js');
+var resp = require('../modules/response_manager/response_manager.js');
+var errorMap = require('../modules/utils/errors.js');
 
-app.get('/', function(req, res, next) {
-	var resObj = new resp(req);
-	resObj.setTitle('API');
-	resObj.setDescription('This is the index route.');
-	res.send(resObj.toJSonString());
+app.use('*', function(req, res, next) {
+	next(errorMap.items.resourceNotFound);
+});
+
+app.use(function(err, req, res, next) {
+	logger.debug('fallback catcherror: ', err);
+
+	if (err) {
+		var resObj = new resp(req);
+		resObj.setDescription('Something wrong happened. :( Please check errors object for more info...');
+
+		if (err.hasOwnProperty('name')) {
+			if (errorMap.items.hasOwnProperty(err.name)) {
+				if (!err.hasOwnProperty('message')) {
+					err.message = errorMap.items[err.name].message;
+				}
+			}
+			if (err.name == 'Error' && err.code == 'ENOENT') {
+				err = errorMap.items.resourceNotFound;
+			}
+		}
+		resObj.addErrorItem(err);
+		res.status(resObj.getStatusCode());
+		res.send(resObj.toJSonString());
+	}
 });
 
 module.exports = app;

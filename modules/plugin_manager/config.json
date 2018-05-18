@@ -1,3 +1,11 @@
-[
-  "testPlugin"
-]
+{
+  "pluginManager": {
+    "pluginsPath": "../../plugins/",
+    "plugins": [
+      {
+        "file": "testPlugin/testPlugin.js",
+        "public": ""
+      }
+    ]
+  }
+}

@@ -22,9 +22,9 @@ SOFTWARE.*/
 
 var express = require('express');
 var app = express();
-var utils = require('../../modules/utils');
-var resp = require('../../modules/response_manager');
-var logger = require("../../modules/log_manager");
+var utils = require('../../modules/utils/utils.js');
+var resp = require('../../modules/response_manager/response_manager.js');
+var logger = require('../../modules/log_manager/log_manager.js');
 var errorMap = require('../../modules/utils/errors.js');
 
 app.get('/errors', function(req, res, next) {
